@@ -1,49 +1,50 @@
 import numpy as np
 import cv2
-import Yolov8
+import pose_estimator
+import threading
 
 # Initializing the two cameras
 cap0 = cv2.VideoCapture(0)
 cap1 = cv2.VideoCapture(1)
 
-# Due to the bandwidth of typical USB webcameras, we will need to enhance the images captured from the 2nd camera
-
-# Initializing the alpha, and beta for the 2nd camera
-
-alpha = 2
-beta = 20
-
-while True:
-    ret0, cameraL = cap0.read()
-    ret1, cameraR = cap1.read()
-    if (ret0):
+# A thread that starts live-feed for each camera that the method gets called with
+# The ID is used to determine the position of each camera
+def getFeed(cap, ID):
+    while True:
+        ret, camera = cap.read()
         try:
-            points = Yolov8.framePose(0, cameraL)
+            # Calls the Yolov8 pose estimation model and returns the needed keypoints
+            points = pose_estimator.framePose(0, camera)
+
+            # Since the pose_estimator returns Null if there are no predications, and we know
+            # that if there are predictions, then it will be of 17 points. We can directly
+            # iterate for 17
             for i in range(17):
+                # This takes each rows, makes it an array, and then uses each array for a circle
                 point = points[:, i, :]
                 point = point.flatten()
                 if point[0] and point[1] != 0:
-                    cv2.circle(cameraL, (int(point[0]), int(point[1])), 5, (0,0,255), 3)
+                    cv2.circle(camera, (int(point[0]), int(point[1])), 5, (0,0,255), 3)
         except:
-            print("")
-        cv2.imshow("Camera Left", cameraL)
-    if (ret1):
-        # Making the image brighter, and also increasing contrast
-        Fixed_cameraR = cv2.convertScaleAbs(cameraR, alpha=alpha, beta=beta)
-        try:
-            points = Yolov8.framePose(1, Fixed_cameraR)
-            for i in range(17):
-                point = points[:, i, :]
-                point = point.flatten()
-                if point[0] and point[1] != 0:
-                    cv2.circle(Fixed_cameraR, (int(point[0]), int(point[1])), 5, (0, 0, 255), 3)
-        except:
-            print("")
-        cv2.imshow("Camera Right", Fixed_cameraR)
+            print()
+        name = ""
+        if ID == 0:
+            name = "Left Cam"
+        else:
+            name = "Right Cam"
 
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
+        cv2.imshow(name, camera)
 
-cap0.release()
-cap1.release()
-cv2.destroyAllWindows()
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+    cap.release()
+    cv2.destroyAllWindows()
+
+if __name__ == '__main__':
+    # Each existing camera gets a thread for its own, this will ensure that both cameeras will
+    # work synchronously. This will decrease lag, and increase the accuracy.
+    cam0 = threading.Thread(target=getFeed, args=(cap0, 0,))
+    cam1 = threading.Thread(target=getFeed, args=(cap1, 1,))
+
+    cam0.start()
+    cam1.start()
