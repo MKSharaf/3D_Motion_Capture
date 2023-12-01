@@ -1,19 +1,34 @@
-import numpy as np
 import cv2
 import pose_estimator
 import threading
+import numpy as np
 
 # Initializing the two cameras
 cap0 = cv2.VideoCapture(0)
 cap1 = cv2.VideoCapture(1)
+
+# Setting up the resolution to be 640x480 because it is the optimal resolution for YOLOv8
+cap0.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+cap0.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+cap1.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+cap1.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+
+def gammaCorrection(src, gamma):
+    invGamma = 1 / gamma
+
+    table = [((i / 255) ** invGamma) * 255 for i in range(256)]
+    table = np.array(table, np.uint8)
+
+    return cv2.LUT(src, table)
 
 # A thread that starts live-feed for each camera that the method gets called with
 # The ID is used to determine the position of each camera
 def getFeed(cap, ID):
     while True:
         ret, camera = cap.read()
+        camera = gammaCorrection(camera, 0.8)
         try:
-            # Calls the Yolov8 pose estimation model and returns the needed keypoints
+            # Calls the YOLOv8 pose estimation model and returns the needed keypoints
             points = pose_estimator.framePose(0, camera)
 
             # Since the pose_estimator returns Null if there are no predications, and we know
@@ -23,20 +38,17 @@ def getFeed(cap, ID):
                 # This takes each rows, makes it an array, and then uses each array for a circle
                 point = points[:, i, :]
                 point = point.flatten()
-                if point[0] and point[1] != 0:
-                    cv2.circle(camera, (int(point[0]), int(point[1])), 5, (0,0,255), 3)
+                cv2.circle(camera, (int(point[0]), int(point[1])), 5, (0,0,255), 3)
         except:
             print()
-        name = ""
         if ID == 0:
             name = "Left Cam"
         else:
             name = "Right Cam"
-
         cv2.imshow(name, camera)
-
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
+
     cap.release()
     cv2.destroyAllWindows()
 
