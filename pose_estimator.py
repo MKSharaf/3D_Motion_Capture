@@ -3,7 +3,7 @@ from ultralytics import YOLO
 import numpy as np
 
 # Setting up the pose estimation model
-model = YOLO('YOLOv8s-pose.pt')
+model = YOLO('YOLOv8m-pose.pt')
 # Set the device to GPU if CUDA is installed and use the model with GPU
 device = 0 if torch.cuda.is_available() else 'cpu'
 print(device)
@@ -18,7 +18,7 @@ def getKeypoints(results):
             return xy_keypoints
 def framePose(id, frame):
     # This initializes the YOLOv8 model to use it to predict the keypoints in each frame
-    results = model.predict(source=frame, conf=0.75, device=device, show_labels=False, show_conf=False, boxes=False, verbose=False)
+    results = model.predict(source=frame, conf=0.5, device=device, show_labels=False, show_conf=False, boxes=False, verbose=False)
     # We make sure that we are sending a value back to the cameras
     if getKeypoints(results) is not None:
         points = getKeypoints(results)
