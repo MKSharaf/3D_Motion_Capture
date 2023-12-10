@@ -26,7 +26,8 @@ def gammaCorrection(src, gamma):
 def getFeed(cap, ID):
     while True:
         ret, camera = cap.read()
-        camera = gammaCorrection(camera, 0.8)
+        camera = gammaCorrection(camera, 1.5)
+        camera = cv2.GaussianBlur(camera, (7, 7), 0)
         try:
             # Calls the YOLOv8 pose estimation model and returns the needed keypoints
             points = pose_estimator.framePose(0, camera)

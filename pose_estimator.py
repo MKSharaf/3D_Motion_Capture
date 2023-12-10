@@ -16,6 +16,7 @@ def getKeypoints(results):
             # Removes the final column because so far we only need x and y
             xy_keypoints = np.delete(keypoint, np.s_[-1:], axis=2)
             return xy_keypoints
+
 def framePose(id, frame):
     # This initializes the YOLOv8 model to use it to predict the keypoints in each frame
     results = model.predict(source=frame, conf=0.5, device=device, show_labels=False, show_conf=False, boxes=False, verbose=False)
