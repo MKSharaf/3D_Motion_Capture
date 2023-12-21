@@ -1,11 +1,16 @@
 import cv2
 import pose_estimator
+import calculate_depth
 import threading
 import numpy as np
 
 # Initializing the two cameras
 cap0 = cv2.VideoCapture(0)
+cap0.set(cv2.CAP_PROP_AUTO_EXPOSURE, 0.25)
+cap0.set(cv2.CAP_PROP_EXPOSURE, -6)
 cap1 = cv2.VideoCapture(1)
+cap1.set(cv2.CAP_PROP_AUTO_EXPOSURE, 0.25)
+cap1.set(cv2.CAP_PROP_EXPOSURE, -6)
 
 # Setting up the resolution to be 640x480 because it is the optimal resolution for YOLOv8
 cap0.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
@@ -27,11 +32,15 @@ def getFeed(cap, ID):
     while True:
         ret, camera = cap.read()
         camera = gammaCorrection(camera, 1.5)
-        camera = cv2.GaussianBlur(camera, (7, 7), 0)
+        camera = cv2.GaussianBlur(camera, (5, 5), 0)
         try:
             # Calls the YOLOv8 pose estimation model and returns the needed keypoints
-            points = pose_estimator.framePose(0, camera)
-
+            if ID == 0:
+                points = pose_estimator.framePoseLeft(camera)
+                calculate_depth.get_point_left(points)
+            else:
+                points = pose_estimator.framePoseRight(camera)
+                calculate_depth.get_point_right(points)
             # Since the pose_estimator returns Null if there are no predications, and we know
             # that if there are predictions, then it will be of 17 points. We can directly
             # iterate for 17
@@ -43,6 +52,8 @@ def getFeed(cap, ID):
         except:
             print()
         if ID == 0:
+            depth = threading.Thread(target=calculate_depth.depth, args=())
+            depth.start()
             name = "Left Cam"
         else:
             name = "Right Cam"
@@ -52,6 +63,7 @@ def getFeed(cap, ID):
 
     cap.release()
     cv2.destroyAllWindows()
+
 
 if __name__ == '__main__':
     # Each existing camera gets a thread for its own, this will ensure that both cameeras will
