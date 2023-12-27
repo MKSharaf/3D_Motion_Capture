@@ -57,8 +57,6 @@ def DLT(left_point, right_point):
          P2[0, :] - right_point[0] * P2[2, :]
          ]
     A = np.array(A).reshape((4, 4))
-    # print('A: ')
-    # print(A)
 
     B = A.transpose() @ A
     from scipy import linalg
