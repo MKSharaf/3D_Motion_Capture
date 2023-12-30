@@ -1,6 +1,6 @@
 ## 3D Motion Capture
 This project was made as part of my learning experince in trying to move my knowledge into 3D space when it comes to Computer Vision.
-It is seperated into 2 phases, the first one is successfully getting the pose estimation into the 3D space, the second phase would be getting the movements properly mapped to a 3D model.
+It is seperated into 2 phases, the first one is successfully getting the pose estimation into the 3D space, the second phase will be getting the movements properly mapped to a 3D model.
 
 ## Try it out
 1) Connect the 2 cameras.
