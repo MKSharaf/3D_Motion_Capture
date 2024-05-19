@@ -11,7 +11,7 @@ It is seperated into 2 phases, the first one is successfully getting the pose es
 5) Run `main` to start the process of 3D pose estimation.
 
 ## Future Work
-1) Connect the program with a 3rd party 3D program.
+1) Connect the program with a 3rd party 3D program. **DONE**
 2) Visualize the movements with a 3D rigged model.
 
 ## Explanation
