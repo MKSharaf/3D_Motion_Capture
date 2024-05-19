@@ -16,3 +16,9 @@ It is seperated into 2 phases, the first one is successfully getting the pose es
 
 ## Explanation
 I'll soon explain the code and the algorithms used.
+
+## A *VERY* early demo
+This will be the subject of major polish to make it more accurate, faster, and precise. Use as as a proof of concept 
+
+https://github.com/MKSharaf/3D_Motion_Capture/assets/135005981/a39d3257-5f6b-4314-ad3b-656ae47415a2
+
