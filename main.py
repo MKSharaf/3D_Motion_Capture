@@ -8,6 +8,7 @@ import numpy as np
 import main
 import socket
 
+# This is for sending the estimations to a 3rd party program
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 serverAddressPort = ('127.0.0.1', 5555)
 
@@ -96,7 +97,7 @@ def getFeed(ID, q):
         ret, camera = cap.read()
         camera = cv2.GaussianBlur(camera, (5, 5), 0)
         try:
-            # Calls the YOLOv8 pose estimation model and returns the needed keypoints
+            # Calls the RTMPose pose estimation model and returns the needed keypoints
             if ID == 0:
                 camera = gammaCorrection0(camera, 1.5)
                 points = pose_estimator.framePose0(model, camera)
